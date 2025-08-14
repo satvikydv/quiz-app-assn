@@ -206,6 +206,17 @@ export function QuizPage({ userEmail, questions, onQuizComplete }: QuizPageProps
               </AnimatePresence>
             </div>
 
+            {/* Desktop Submit Button */}
+            <div className="hidden sm:block mt-4 sm:mt-6 text-center">
+              <Button
+                onClick={handleSubmitQuiz}
+                disabled={isLoading}
+                className="w-full sm:w-auto px-6 sm:px-8"
+              >
+                {isLoading ? "Submitting..." : "Submit Quiz Early"}
+              </Button>
+            </div>
+
             {/* Mobile Floating Bar for Navigation & Submit */}
             <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 border-t border-gray-200 flex flex-col sm:hidden px-2 py-2 gap-2 shadow-lg">
               <div className="flex justify-between items-center">
