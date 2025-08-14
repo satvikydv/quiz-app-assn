@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -132,8 +131,8 @@ export function QuizPage({ userEmail, questions, onQuizComplete }: QuizPageProps
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-2 sm:p-4">
-      <div className="max-w-6xl mx-auto w-full">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
+      <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-4">
@@ -165,9 +164,9 @@ export function QuizPage({ userEmail, questions, onQuizComplete }: QuizPageProps
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
           {/* Main Quiz Area */}
-          <div className="md:col-span-2 lg:col-span-3 w-full">
+          <div className="lg:col-span-3">
             {/* Timer */}
             <Timer
               initialTime={30 * 60}
@@ -177,70 +176,33 @@ export function QuizPage({ userEmail, questions, onQuizComplete }: QuizPageProps
             />
 
             {/* Question Card */}
+            {currentQuestion && (
+              <QuestionCard
+                question={currentQuestion}
+                questionNumber={quizState.currentQuestionIndex + 1}
+                totalQuestions={questions.length}
+                selectedAnswer={selectedAnswer}
+                onAnswerSelect={handleAnswerSelect}
+                onNext={handleNext}
+                onPrevious={handlePrevious}
+                isLastQuestion={quizState.currentQuestionIndex === questions.length - 1}
+              />
+            )}
 
-            <div className="relative min-h-[220px] sm:min-h-[320px] pb-24 sm:pb-0">
-              <AnimatePresence mode="wait" initial={false}>
-                {currentQuestion && (
-                  <motion.div
-                    key={quizState.currentQuestionIndex}
-                    initial={{ opacity: 0, x: 40 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -40 }}
-                    transition={{ duration: 0.35, ease: "easeInOut" }}
-                    className="absolute w-full"
-                  >
-                    <QuestionCard
-                      question={currentQuestion}
-                      questionNumber={quizState.currentQuestionIndex + 1}
-                      totalQuestions={questions.length}
-                      selectedAnswer={selectedAnswer}
-                      onAnswerSelect={handleAnswerSelect}
-                      onNext={handleNext}
-                      onPrevious={handlePrevious}
-                      isLastQuestion={quizState.currentQuestionIndex === questions.length - 1}
-                      showMobileOverviewButton={true}
-                      onShowMobileOverview={() => setShowMobileOverview(true)}
-                    />
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-
-            {/* Desktop Submit Button */}
-            <div className="hidden sm:block mt-4 sm:mt-6 text-center">
+            {/* Submit Button */}
+            <div className="mt-6 text-center">
               <Button
                 onClick={handleSubmitQuiz}
                 disabled={isLoading}
-                className="w-full sm:w-auto px-6 sm:px-8"
+                className="px-8"
               >
                 {isLoading ? "Submitting..." : "Submit Quiz Early"}
               </Button>
             </div>
-
-            {/* Mobile Floating Bar for Navigation & Submit */}
-            <div className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 border-t border-gray-200 flex flex-col sm:hidden px-2 py-2 gap-2 shadow-lg">
-              <div className="flex justify-between items-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowMobileOverview(true)}
-                  className="flex-1 mr-2"
-                >
-                  Questions
-                </Button>
-                <Button
-                  onClick={handleSubmitQuiz}
-                  disabled={isLoading}
-                  className="flex-1 ml-2"
-                >
-                  {isLoading ? "Submitting..." : "Submit Quiz"}
-                </Button>
-              </div>
-            </div>
           </div>
 
           {/* Desktop Question Overview Panel */}
-          <div className="hidden md:block md:col-span-1 lg:col-span-1">
+          <div className="hidden lg:block lg:col-span-1">
             <div className="sticky top-4">
               <QuestionOverview
                 questions={questions}
