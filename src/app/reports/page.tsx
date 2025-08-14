@@ -47,7 +47,11 @@ export default function ReportsPage() {
   }, [searchParams]);
 
   const handleRestart = () => {
-    router.push('/');
+    if (reportData?.userEmail) {
+      router.push(`/quiz?email=${encodeURIComponent(reportData.userEmail)}`);
+    } else {
+      router.push('/');
+    }
   };
 
   if (isLoading) {

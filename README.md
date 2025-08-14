@@ -1,3 +1,4 @@
+
 # Quiz Application
 
 A modern, interactive quiz application built with Next.js, TypeScript, Tailwind CSS, and shadcn/ui components.
@@ -5,6 +6,7 @@ A modern, interactive quiz application built with Next.js, TypeScript, Tailwind 
 ## Features
 
 - **Start Page**: Email collection with form validation
+- **Quiz Countdown**: 5-second countdown before quiz starts (prevents API rate limit issues)
 - **Quiz Interface**: 15 multiple-choice questions with navigation
 - **Timer**: 30-minute countdown timer with auto-submission
 - **Progress Tracking**: Visual progress bar and question navigation
@@ -14,30 +16,29 @@ A modern, interactive quiz application built with Next.js, TypeScript, Tailwind 
 ## Quiz Flow
 
 1. **Start Page**: User enters their email address
-2. **Loading**: Questions are fetched from the API
-3. **Quiz**: 15 questions with 30-minute timer
-4. **Completion**: Results are submitted and displayed
+2. **Countdown**: 5-second countdown before quiz starts
+3. **Loading**: Questions are fetched from the OpenTDB API via a Next.js API route
+4. **Quiz**: 15 questions with 30-minute timer
+5. **Completion**: Results are submitted and displayed
 
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 18+ 
+- Node.js 18+
 - npm or yarn
 
 ### Installation
 
 1. Clone the repository
 2. Install dependencies:
-   ```bash
-   npm install
-   ```
-
+  ```bash
+  npm install
+  ```
 3. Run the development server:
-   ```bash
-   npm run dev
-   ```
-
+  ```bash
+  npm run dev
+  ```
 4. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Project Structure
@@ -46,6 +47,8 @@ A modern, interactive quiz application built with Next.js, TypeScript, Tailwind 
 src/
 ├── app/
 │   ├── page.tsx          # Main application page
+│   ├── quiz/page.tsx     # Quiz logic and countdown
+│   ├── reports/page.tsx  # Results page
 │   ├── layout.tsx        # Root layout
 │   └── globals.css       # Global styles
 ├── components/
@@ -53,51 +56,24 @@ src/
 │   ├── QuizPage.tsx      # Main quiz interface
 │   ├── QuestionCard.tsx  # Individual question component
 │   ├── Timer.tsx         # Countdown timer
+│   ├── QuizReport.tsx    # Results/report component
 │   └── ui/               # shadcn/ui components
 ├── lib/
-│   ├── api.ts           # API functions (mock data)
-│   └── utils.ts         # Utility functions
+│   ├── api.ts            # API functions (fetches from /api/questions)
+│   └── utils.ts          # Utility functions
 └── types/
-    └── quiz.ts          # TypeScript interfaces
+   └── quiz.ts           # TypeScript interfaces
 ```
 
-## API Integration
+## API Flow
 
-The application currently uses mock data in `src/lib/api.ts`. To integrate with your real API:
-
-### 1. Update `fetchQuestions()` function
-
-Replace the mock implementation with your API call:
-
-```typescript
-export async function fetchQuestions(): Promise<Question[]> {
-  const response = await fetch('YOUR_API_ENDPOINT/questions');
-  const data = await response.json();
-  return data.questions;
-}
-```
-
-### 2. Update `submitQuizResults()` function
-
-Replace with your submission endpoint:
-
-```typescript
-export async function submitQuizResults(submission: QuizSubmission): Promise<{ success: boolean; message: string }> {
-  const response = await fetch('YOUR_API_ENDPOINT/submit', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(submission),
-  });
-  
-  return response.json();
-}
-```
+- Questions are fetched from the OpenTDB API via the Next.js API route: `/api/questions`
+- The frontend never calls OpenTDB directly (avoids CORS and rate limit issues)
+- If the API is rate-limited, the user sees a friendly error and the page auto-retries
 
 ## Question Format
 
-Questions should follow this structure:
+Questions follow this structure:
 
 ```typescript
 interface Question {
@@ -108,28 +84,6 @@ interface Question {
 }
 ```
 
-## Features
-
-### Timer
-- 30-minute countdown
-- Color-coded (green → yellow → red)
-- Auto-submits when time runs out
-
-### Navigation
-- Previous/Next buttons
-- Question number grid
-- Visual indicators for answered questions
-
-### Progress Tracking
-- Progress bar showing completion percentage
-- Question counter
-- Time remaining display
-
-### Responsive Design
-- Mobile-friendly interface
-- Adaptive layouts
-- Touch-friendly controls
-
 ## Customization
 
 ### Styling
@@ -139,11 +93,9 @@ interface Question {
 
 ### Timer Duration
 - Change `30 * 60` in `QuizPage.tsx` to modify timer duration
-- Update the start page description accordingly
 
 ### Question Count
-- Modify the question array in `api.ts`
-- Update progress calculations if needed
+- Change the API call in `src/app/api/questions/route.ts` to adjust the number of questions
 
 ## Technologies Used
 

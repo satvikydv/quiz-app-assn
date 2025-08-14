@@ -12,19 +12,32 @@ export default function QuizRoute() {
   // All hooks at the top
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [appState, setAppState] = useState<"loading" | "quiz" | "error">("loading");
+  const [appState, setAppState] = useState<"countdown" | "loading" | "quiz" | "error">("countdown");
   const [questions, setQuestions] = useState<Question[]>([]);
   const [error, setError] = useState<string>("");
+  const [countdown, setCountdown] = useState(5);
   const userEmail = searchParams.get('email');
 
+  // Countdown effect
   useEffect(() => {
-    const initializeQuiz = async () => {
-      if (!userEmail) {
-        setError("Email is required to start the quiz");
-        setAppState("error");
-        return;
-      }
+    if (appState !== "countdown") return;
+    if (!userEmail) {
+      setError("Email is required to start the quiz");
+      setAppState("error");
+      return;
+    }
+    if (countdown === 0) {
       setAppState("loading");
+      return;
+    }
+    const timer = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [appState, countdown, userEmail]);
+
+  // Fetch questions after countdown
+  useEffect(() => {
+    if (appState !== "loading") return;
+    const fetchData = async () => {
       const fetchedQuestions = await fetchQuestions();
       if (!fetchedQuestions) {
         setError("Failed to load quiz questions. Please try again.");
@@ -34,8 +47,8 @@ export default function QuizRoute() {
       setQuestions(fetchedQuestions);
       setAppState("quiz");
     };
-    initializeQuiz();
-  }, [userEmail]);
+    fetchData();
+  }, [appState]);
 
   useEffect(() => {
     if (appState === "error") {
@@ -61,6 +74,20 @@ export default function QuizRoute() {
   };
 
   // Conditional rendering after all hooks
+  if (appState === "countdown") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+        <Card className="w-full max-w-md text-center">
+          <CardHeader>
+            <CardTitle>Quiz starting in...</CardTitle>
+            <div className="text-6xl font-bold text-blue-600 my-4">{countdown}</div>
+            <p className="text-muted-foreground">Get ready!</p>
+          </CardHeader>
+        </Card>
+      </div>
+    );
+  }
+
   if (appState === "loading") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
