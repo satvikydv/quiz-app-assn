@@ -3,26 +3,57 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { StartPage } from "@/components/StartPage";
+import { QuizPage } from "@/components/QuizPage";
+import { Question, QuizSubmission } from "@/types/quiz";
 
 export default function Home() {
   const router = useRouter();
+  const [appState, setAppState] = useState<"start" | "quiz" | "loading">("start");
+  const [userEmail, setUserEmail] = useState("");
+  const [questions, setQuestions] = useState<Question[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Prevent multiple rapid navigations to /quiz
-  let navigationLock = false;
   const handleStartQuiz = async (email: string) => {
-    if (navigationLock) return;
-    navigationLock = true;
     setIsLoading(true);
+    setAppState("loading");
+    setUserEmail(email);
+
     try {
-      // Redirect to quiz page with email parameter
-      router.push(`/quiz?email=${encodeURIComponent(email)}`);
+      const response = await fetch("/api/questions");
+      if (!response.ok) {
+        throw new Error("Failed to fetch questions");
+      }
+      const data = await response.json();
+      setQuestions(data.results);
+      setAppState("quiz");
     } catch (error) {
-      console.error("Failed to start quiz:", error);
+      console.error("Error fetching questions:", error);
+      setAppState("start");
+    } finally {
       setIsLoading(false);
-      navigationLock = false;
     }
   };
 
-  return <StartPage onStartQuiz={handleStartQuiz} isLoading={isLoading} />;
+  const handleQuizComplete = (submission: QuizSubmission) => {
+    // Store submission data in localStorage for reports
+    localStorage.setItem('quizSubmission', JSON.stringify(submission));
+    // Navigate to reports page
+    router.push('/reports');
+  };
+
+  if (appState === "loading") {
+    return <StartPage onStart={handleStartQuiz} isLoading={true} />;
+  }
+
+  if (appState === "quiz" && questions.length > 0) {
+    return (
+      <QuizPage
+        userEmail={userEmail}
+        questions={questions}
+        onQuizComplete={handleQuizComplete}
+      />
+    );
+  }
+
+  return <StartPage onStart={handleStartQuiz} isLoading={isLoading} />;
 }

@@ -3,14 +3,13 @@
 import { useEffect, useState } from "react";
 import { QuizReport } from "@/components/QuizReport";
 import { Question } from "@/types/quiz";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { RefreshCw } from "lucide-react";
 
 export default function ReportsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState(true);
   const [reportData, setReportData] = useState<{
     questions: Question[];
@@ -20,38 +19,29 @@ export default function ReportsPage() {
   } | null>(null);
 
   useEffect(() => {
-    // Get data from URL search params
-    const questionsParam = searchParams.get('questions');
-    const answersParam = searchParams.get('answers');
-    const timeParam = searchParams.get('time');
-    const emailParam = searchParams.get('email');
-
-    if (questionsParam && answersParam && timeParam && emailParam) {
+    // Get data from localStorage
+    const storedSubmission = localStorage.getItem('quizSubmission');
+    
+    if (storedSubmission) {
       try {
-        const questions = JSON.parse(decodeURIComponent(questionsParam));
-        const userAnswers = JSON.parse(decodeURIComponent(answersParam));
-        const timeTaken = parseInt(timeParam);
-        const userEmail = decodeURIComponent(emailParam);
-
+        const submission = JSON.parse(storedSubmission);
         setReportData({
-          questions,
-          userAnswers,
-          timeTaken,
-          userEmail,
+          questions: submission.questions,
+          userAnswers: submission.answers,
+          timeTaken: submission.timeTaken,
+          userEmail: submission.userEmail,
         });
       } catch (error) {
         console.error("Error parsing report data:", error);
       }
     }
     setIsLoading(false);
-  }, [searchParams]);
+  }, []);
 
   const handleRestart = () => {
-    if (reportData?.userEmail) {
-      router.push(`/quiz?email=${encodeURIComponent(reportData.userEmail)}`);
-    } else {
-      router.push('/');
-    }
+    // Clear the stored submission
+    localStorage.removeItem('quizSubmission');
+    router.push('/');
   };
 
   if (isLoading) {
@@ -79,7 +69,7 @@ export default function ReportsPage() {
           <CardHeader>
             <CardTitle className="text-2xl font-bold text-red-600">Report Not Found</CardTitle>
             <p className="text-muted-foreground">
-              The quiz report you're looking for doesn't exist or has expired.
+              The quiz report you&apos;re looking for doesn&apos;t exist or has expired.
             </p>
           </CardHeader>
           <CardContent>

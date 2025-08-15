@@ -27,8 +27,8 @@ export function QuizReport({
   
   // Calculate results
   let correctAnswers = 0;
-  let totalQuestions = questions.length;
-  let answeredQuestions = Object.keys(userAnswers).length;
+  const totalQuestions = questions.length;
+  const answeredQuestions = Object.keys(userAnswers).length;
 
   const results = questions.map((question, index) => {
     const userAnswer = userAnswers[question.id];
@@ -83,7 +83,9 @@ export function QuizReport({
               <Trophy className="h-8 w-8 text-blue-600" />
             </div>
             <h1 className="text-3xl font-bold mb-2">Quiz Results</h1>
-            <p className="text-muted-foreground">Here's your detailed performance report</p>
+            <p className="text-muted-foreground">
+              You&apos;ve completed the quiz! Here&apos;s your detailed performance report.
+            </p>
           </div>
 
           {/* Summary Cards */}
@@ -158,7 +160,7 @@ export function QuizReport({
         <div className="space-y-6">
           <h2 className="text-2xl font-bold">Question Analysis</h2>
           
-          {results.map((result, index) => (
+          {results.map((result) => (
             <Card key={result.question.id} className="overflow-hidden">
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">

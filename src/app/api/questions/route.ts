@@ -1,6 +1,6 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const response = await fetch('https://opentdb.com/api.php?amount=15', {
       method: 'GET',
@@ -36,8 +36,9 @@ export async function GET(request: NextRequest) {
     }
 
     return NextResponse.json(data);
-  } catch (error: any) {
-    console.error('[API] Error fetching questions from OpenTDB:', error?.message || error, error?.stack);
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    console.error('[API] Error fetching questions from OpenTDB:', errorMessage);
     return NextResponse.json(
       { error: 'Unable to load quiz questions at the moment. Please try again later.' },
       { status: 500 }

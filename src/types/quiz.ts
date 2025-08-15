@@ -21,4 +21,7 @@ export interface QuizSubmission {
   userEmail: string;
   answers: Record<string, number>;
   timeTaken: number;
+  totalQuestions: number;
+  answeredQuestions: number;
+  questions: Question[];
 }
